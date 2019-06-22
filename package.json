@@ -1,0 +1,11 @@
+{
+  "name": "udprn-intersection",
+  "version": "1.0.0",
+  "description": "return stats on the intersection between files containing udprns",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "author": "Ryan Simpson",
+  "dependencies": {}
+}
