@@ -27,7 +27,7 @@ Steps:
 * Navigate to folder in terminal and enter "docker-compose up"
 * Send a http get request to the docker container running (e.g. http://localhost:8080/intersection?fileA=A_f&fileB=B_f)
 * This will process files A_f.csv and B_f.csv and return results
-* You can then call another end point (http://localhost:8080/results) to retrieve the results
+* You can then call another end point (http://localhost:8080/results) to retrieve results from previous files processed
 
 
 ## Implementation
