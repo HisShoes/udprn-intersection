@@ -22,5 +22,26 @@ Requirements:
 
 Steps:
 * Clone the repo with git
+* Manually put two files to compare into the data folder
+  * Default names for these files are A_f and B_f - can be changed in docker-compose.yml  
 * Ensure docker machine is running
 * Navigate to folder in terminal and enter "docker-compose up"
+
+
+## Results
+
+The "database" version took longer than the "in memory" version but would allow for larger file sizes <br><br>
+* Distinct udprns in A_f
+* 72791
+* Total in A_f
+* 86526
+* Distinct udprns in B_f
+* 72806
+* Total in B_f
+* 72838
+* Total overlap is:
+* 69261
+* Total distinct overlap is:
+* 58212
+---
+* Time: 1.801465315

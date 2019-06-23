@@ -1,9 +1,17 @@
 version: '3'
 services:
-  web:
+  postgres:
+    image: postgres:9.6.2-alpine
+    environment:
+      POSTGRES_USER: udprn
+      POSTGRES_DB: udprns
+      
+  app:
     build: .
-    command: nodemon -L src/index.js
-    ports:
-    - "8080:8080"
+    command: nodemon -L src/index.js -a A_f -b B_f
     volumes:
     - .:/usr/src/app
+    depends_on: 
+    - postgres
+    environment:
+      DATABASE_URL: postgres://udprn@postgres/udprns
