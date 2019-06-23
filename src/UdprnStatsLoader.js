@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-//class used to manage loading a file to db and then getting some stats on data loaded
+//class used to manage loading a single file to db and then getting some stats on data loaded
 class UDPRNStats {
   constructor(tableName, fileName, client) {
     this.fileName = fileName;

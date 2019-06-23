@@ -1,17 +1,18 @@
+//manages the logic to instantiate stats loaders and collate the results
+
 const path = require('path');
 const dataPath = path.join(__dirname, '../data/');
 
 const { createStatsObject } = require('./UdprnStatsLoader');
 
-//define structure of the results
-const results = {
-  totalOverlap: null,
-  totalDistinctOverlap: null,
-};
-
 module.exports.createWrapper = (dbClient) => {
 
+  //loads given file names into a database and returns some basic stats on the amount of overlap between them
   const loadFiles = (fileNames) => {
+
+    //define object to hold the results
+    const results = {};
+    
     let fileStats = fileNames.map((name, index) => createStatsObject(`${name}`, `${dataPath}${name}.csv`, dbClient));
     //create an array for the promises returned for loading files to the db
     let fileAnalysisPromises = fileStats.map(stats => stats.loadFile());
@@ -48,7 +49,8 @@ module.exports.createWrapper = (dbClient) => {
         throw new Error(err);
       });
   }
-  //setup the results table 
+
+  //setup the results table then return the loadFiles function for use elsewhere in the app
   //for now just putting results in one column, wou - would want to split it out to proper data structure
   return dbClient.createTable('RESULTS', { fileA: 'VARCHAR(50)', fileB: 'VARCHAR(50)', results: 'VARCHAR(500)' })
     .then(res => {
