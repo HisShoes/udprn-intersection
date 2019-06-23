@@ -59,7 +59,7 @@ The "database" version took longer than the "in memory" version but would allow 
 I set this up as an express app at this point so it could be more flexible in terms of which files were loaded, seems like a more useful form:
 * Have some way of uploading files to the folder
 * One end point to tell the service to look through the files and store the results
-* Another end point to fetch the results
+* Another end point to fetch the results (I've set up an end point to retrieve results but left it very basic)
   <br><br>
 
 Results of "database" version:
