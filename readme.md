@@ -30,6 +30,26 @@ Steps:
 
 ## Results
 
+Initially made it work "in-memory" but was fairly quick + didn't think it would scale so tried to implement using a database to store the file content.
+
+Results for "memory" version
+* Distinct udprns in A_f
+* 72791
+* Total in A_f
+* 86526
+* Distinct udprns in B_f
+* 72806
+* Total in B_f
+* 72838
+* Total overlap is:
+* 69261
+* Total distinct overlap is:
+* 58212
+---
+* Time: 0.112479016
+
+<br>
+
 The "database" version took longer than the "in memory" version but would allow for larger file sizes <br><br>
 * Distinct udprns in A_f
 * 72791
