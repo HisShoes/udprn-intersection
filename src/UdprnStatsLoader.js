@@ -31,11 +31,6 @@ class UDPRNStats {
 
   //retrieve the results (prints as well just to show in console)
   getResults() {
-    console.log(`Distinct udprns in ${this.tableName}`);
-    console.log(this.distinctUdprns);
-    console.log(`Total in ${this.tableName}`);
-    console.log(this.totalUdprns);
-
     return {
       distinctUdprns: this.distinctUdprns,
       totalUdprns: this.totalUdprns

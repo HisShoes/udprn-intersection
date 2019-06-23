@@ -1,7 +1,7 @@
 const pg = require('pg');
 
 // return basic functions required by the app interacting with the db
-const dbInterface = (client, done) => {
+const dbInterface = (client) => {
 
   function query(queryString) {
     return new Promise((resolve, reject) => {
@@ -20,7 +20,7 @@ const dbInterface = (client, done) => {
 
   function createTable(table, tableParams) {
     let columns = Object.keys(tableParams).map(key => `${key} ${tableParams[key]}`).join(',');
-    let queryString = `CREATE TABLE ${table} (${columns})`;
+    let queryString = `CREATE TABLE  IF NOT EXISTS ${table} (${columns})`;
     return query(queryString);
   }
 
@@ -58,7 +58,7 @@ const dbInterface = (client, done) => {
   }
 }
 
-const connect = (dbString) => {
+module.exports.connect = (dbString) => {
   return new Promise((resolve, reject) => {
     const client = new pg.Client(dbString)
     client.connect((err) => {
@@ -70,6 +70,3 @@ const connect = (dbString) => {
     });
   });
 }
-
-
-module.exports = { connect }

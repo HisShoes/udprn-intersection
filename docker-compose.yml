@@ -8,10 +8,14 @@ services:
       
   app:
     build: .
-    command: nodemon -L src/index.js -a A_f -b B_f
+    command: npm start
     volumes:
     - .:/usr/src/app
+    ports:
+    - "8080:8080"
     depends_on: 
     - postgres
     environment:
       DATABASE_URL: postgres://udprn@postgres/udprns
+      HOST: "0.0.0.0"
+      PORT: "8080"
