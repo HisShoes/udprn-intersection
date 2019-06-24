@@ -18,7 +18,4 @@ for(let i = 0; i < 10000000; i++) {
 fs.writeFile('A_long.csv', udprns, (err) => {  
     // throws an error, you could also catch it here
     if (err) throw err;
-
-    // success case, the file was saved
-    console.log('Lyric saved!');
 });
