@@ -2,73 +2,82 @@ const fs = require('fs');
 
 //class used to manage loading a file to db and then getting some stats on data loaded
 class UDPRNStats {
-  constructor(tableName, fileName, client) {
+  constructor(tableName, fileName) {
     this.fileName = fileName;
-    this.dbClient = client;
+    this.udprns = new Map();
+    this.totalUdprns = 0;
     this.tableName = tableName;
-    this.distinctUdprns = null;
     this.totalUdprns = null;
-  }
-
-  //returns a promise resolved when the file is finished streaming
-  //splits chunks into individual udprns and inserts each row to db
-  insertFileToTable() {
-    return new Promise((resolve, reject) => {
-      //stream the file in chunks
-      const stream = fs.createReadStream(this.fileName);
-      stream.on('data', (data) => {
-        const chunk = data.toString();
-        //split chunk to individual udprns in the format required to insert to db
-        const udprnsThisChunk = chunk.split(/\r?\n/).filter(udprn => (udprn && udprn.length === 8)).map(udprn => ({ udprn: udprn }));
-        this.dbClient.insert(this.tableName, udprnsThisChunk);
-
-      });
-
-      stream.on('end', resolve);
-      stream.on('error', reject);
-    });
   }
 
   //retrieve the results (prints as well just to show in console)
   getResults() {
     return {
-      distinctUdprns: this.distinctUdprns,
+      distinctUdprns: this.udprns.size,
       totalUdprns: this.totalUdprns
     }
   }
+  
+  //takes in a different stats object
+  //returns an object containing the overlap
+  diff(comparison) {
+    let totalOverlaps = 0, distinctOverlaps = 0;
 
-  //setup the db as required to store the data then insert the file into it
+    //create a intersection set to get the udprns that exist in both sets
+    let intersection = new Set(
+      [...this.udprns.keys()].filter(key => comparison.udprns.has(key))
+    );
+    distinctOverlaps = intersection.size;
+
+    //loop through the records we know are in both
+    //record the total number of possible overlaps
+    intersection.forEach(key => {
+      totalOverlaps += (this.udprns.get(key) * comparison.udprns.get(key))
+    });
+
+    return {
+      totalOverlaps,
+      distinctOverlaps
+    }
+  }
+  
+  //add/increment udprn to the map and increment total
+  updateUdprn(udprn) {
+    this.udprns.set(udprn, (this.udprns.get(udprn) || 0) + 1);
+    this.totalUdprns += 1;
+  }
+
+  //returns a promise resolved when the file is finished streaming
+  //splits chunks into individual udprns and updates stats for each
   loadFile() {
-    //drop the table in case it already exists before trying to create
-    return this.dbClient.dropTable(this.tableName)
-      .then(res => {
-        return this.dbClient.createTable(this.tableName, { udprn: 'VARCHAR(8)' });
-      })
-      .then(res => {
-        //stream the file and load to db
-        return this.insertFileToTable();
-      })
-      .then(res => {
-        //find total udprns
-        return this.dbClient.query(`SELECT COUNT(udprn) FROM ${this.tableName}`);
-      })
-      .then(totalUdprns => {
-        //find distinct udprns
-        this.totalUdprns = totalUdprns[0].count;
-        return this.dbClient.query(`SELECT COUNT(DISTINCT udprn) FROM ${this.tableName}`);
-      })
-      .then(distinctUdprns => {
-        this.distinctUdprns = distinctUdprns[0].count;
-      })
+    return new Promise((resolve, reject) => {
+      //stream the file in chunks
+      const stream = fs.createReadStream(this.fileName);
+      stream.on('data', (data) => {
+        const chunk = data.toString();
+        //split chunk to individual udprns
+        const udprnsThisChunk = chunk.split(/\r?\n/);
+
+        udprnsThisChunk.forEach((udprn) => {
+          //ignore anything thats not a valid udprn
+          if (udprn && udprn.length === 8) {
+            this.updateUdprn(udprn);
+          }
+        });
+      });
+
+      stream.on('end', resolve);
+      stream.on('error', reject);
+    })
       .catch((err) => {
-        console.log(`loading ${fileName} failed: ${err}`);
+        console.log(`loading ${this.fileName} failed: ${err}`);
         throw (new Error(err));
       })
   }
 }
 
 //build a stats object to handle loading files + getting data on a loaded file
-module.exports.createStatsObject = (tableName, fileName, client) => {
-  let stats = new UDPRNStats(tableName, fileName, client);
+module.exports.createStatsObject = (tableName, fileName) => {
+  let stats = new UDPRNStats(tableName, fileName);
   return stats;
 }
