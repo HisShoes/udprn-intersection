@@ -33,7 +33,7 @@ Steps:
 ## Implementation
 
 
-Initially made it work "in-memory" but was quick to implement and I didn't think it would scale so tried to implement using a database. I took timings and recorded the results to compare the two implementations. "in memory" ran quickly with the given test files, but would struggle with larger files. This version didn't run an express app, and will only load files A_f.csv and B_f.csv.
+Initially made it work "in-memory" but was quick to implement and I didn't think it would scale so tried to implement using a database. I took timings and recorded the results to compare the two implementations. "in memory" ran quickly with the given test files, but would struggle with larger files.
 
 Results for "memory" version
 * Distinct udprns in A_f
@@ -77,3 +77,7 @@ Results of "database" version:
 * 58212
 ---
 * Time: 1.801465315
+
+<br><br>
+
+In the end I put the in-memory solution back in as the database solution took far longer with longer file sizes. It was easy to move the in-memory solution in place of the db solutions, and keep the storing results in a table for later retrieval.
