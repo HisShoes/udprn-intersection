@@ -9,43 +9,29 @@ module.exports.createWrapper = (dbClient) => {
 
   //loads given file names into a database and returns some basic stats on the amount of overlap between them
   const loadFiles = (fileNames) => {
-
-    //define object to hold the results
+    //declare results object to be returned
     const results = {};
-    
-    let fileStats = fileNames.map((name, index) => createStatsObject(`${name}`, `${dataPath}${name}.csv`, dbClient));
+
+    //init object to track each file
+    let fileStats = fileNames.map((name, index) => createStatsObject(`${name}`, `${dataPath}${name}.csv`));
     //create an array for the promises returned for loading files to the db
     let fileAnalysisPromises = fileStats.map(stats => stats.loadFile());
 
     //wait for all the files to load then pass the fileStats to next function
     return Promise.all(fileAnalysisPromises).then(res => fileStats)
       .then(filestats => {
-        //count the total overlap between the two tables
-        return dbClient.query(`SELECT COUNT(a.udprn) FROM ${filestats[0].tableName} a INNER JOIN ${filestats[1].tableName} b ON a.udprn = b.udprn`)
-          .then(totalOverlap => {
-            results.totalOverlap = totalOverlap[0].count;
-            return filestats;
-          });
-      })
-      .then(filestats => {
-        //count the distinct overlap between the two tables
-        return dbClient.query(`SELECT COUNT(DISTINCT a.udprn) FROM ${filestats[0].tableName} a INNER JOIN ${filestats[1].tableName} b ON a.udprn = b.udprn`)
-          .then(totalDistinctOverlap => {
-            results.totalDistinctOverlap = totalDistinctOverlap[0].count;
-            return filestats;
-          });
-      })
-      .then(filestats => {
+        let comparisonStats = fileStats[0].diff(fileStats[1]);
+        results.totalOverlap = comparisonStats.totalOverlap;
+        results.totalDistinctOverlap = comparisonStats.distinctOverlaps;
         //return the results and clean up unwanted tables
         filestats.forEach(file => {
           results[file.tableName] = file.getResults();
-          dbClient.dropTable(file.tableName);
         })
         dbClient.insert('RESULTS', [{ fileA: `'${filestats[0].tableName}'`, fileB: `'${filestats[1].tableName}'`, results: `'${JSON.stringify(results)}'` }]);
         return results;
       })
       .catch(err => {
-        //log error and close db connection
+        console.log(err)
         throw new Error(err);
       });
   }

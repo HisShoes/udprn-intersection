@@ -11,6 +11,7 @@ module.exports = (app, options) => {
         res.status(200).json(results);
       })
       .catch(err => {
+        console.log(err)
         res.status(500).json({error: 'Error trying to process files'});
       })
   });
